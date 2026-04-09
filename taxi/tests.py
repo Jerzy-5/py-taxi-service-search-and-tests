@@ -170,3 +170,50 @@ class DriverCreationFormTest(TestCase):
         }
         form = DriverCreationForm(data=form_data)
         self.assertTrue(form.is_valid())
+
+
+class DriverSearchBasicTest(TestCase):
+    def setUp(self):
+        self.driver = Driver.objects.create_user(username="john_doe",
+                                                 password="pass123")
+        self.client.login(username="john_doe", password="pass123")
+
+    def test_search_by_username(self):
+        response = self.client.get(
+            reverse("taxi:driver-list") + "?username=john")
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "john_doe")
+
+
+class CarSearchBasicTest(TestCase):
+
+    def setUp(self):
+        manufacturer = (Manufacturer.objects.create
+                        (name="manufacturer",
+                         country="mtest"))
+        car = Car.objects.create(model="test model",
+                                 manufacturer=manufacturer)
+        driver = Driver.objects.create_user(username="john_doe",
+                                            password="pass123")
+        car.drivers.set([driver])
+        self.client.login(username="john_doe", password="pass123")
+
+    def test_search_by_model(self):
+        response = self.client.get(reverse(
+            "taxi:car-list") + "?model=test model")
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "test model")
+
+
+class ManufacturerSearchBasicTest(TestCase):
+    def setUp(self):
+        Manufacturer.objects.create(name="manufacturer", country="mtest")
+        Driver.objects.create_user(username="john_doe", password="pass123")
+        self.client.login(username="john_doe", password="pass123")
+
+    def test_search_by_name(self):
+        response =\
+            (self.client.get(reverse(
+                "taxi:manufacturer-list") + "?name=manufacturer"))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "manufacturer")
