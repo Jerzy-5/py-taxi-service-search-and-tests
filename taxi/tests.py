@@ -175,14 +175,20 @@ class DriverCreationFormTest(TestCase):
 class DriverSearchBasicTest(TestCase):
     def setUp(self):
         self.driver = Driver.objects.create_user(username="john_doe",
-                                                 password="pass123")
-        self.client.login(username="john_doe", password="pass123")
+                                                 password="PASSWORD@1",
+                                                 license_number="SWD12345")
+
+        self.driver1 = Driver.objects.create_user(username="jane_smith",
+                                                  password="PASSWORD#1",
+                                                  license_number="LUB12345")
+        self.client.login(username="john_doe", password="PASSWORD@1")
 
     def test_search_by_username(self):
         response = self.client.get(
             reverse("taxi:driver-list") + "?username=john")
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "john_doe")
+        self.assertNotContains(response, "jane_smith")
 
 
 class CarSearchBasicTest(TestCase):
