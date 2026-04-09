@@ -40,8 +40,8 @@ class ModelTest(TestCase):
 
 class AdminPanelTest(TestCase):
     def setUp(self):
-        User = get_user_model()
-        self.admin_user = User.objects.create_superuser(
+        user = get_user_model()
+        self.admin_user = user.objects.create_superuser(
             username="admin",
             email="admin@example.com",
             password="admin123"
